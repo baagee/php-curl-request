@@ -23,7 +23,6 @@ if (!function_exists('\curl_file_create')) {
 
 class mainTest extends \PHPUnit\Framework\TestCase
 {
-
     function testSingle()
     {
         $config  = [
@@ -75,7 +74,6 @@ class mainTest extends \PHPUnit\Framework\TestCase
     function testMulti()
     {
         $config   = [
-            'host'          => '10.188.60.200:8550',
             'return_header' => 0,
             'max_redirs'    => 0
         ];
@@ -127,11 +125,8 @@ class mainTest extends \PHPUnit\Framework\TestCase
         ];
         $t    = microtime(true);
         $res  = $mRequest->request($data);
-        $res  = $mRequest->request($data);
-        file_put_contents('./res.json', json_encode($res));
         var_dump(microtime(true) - $t);
         $this->assertNotEmpty($res);
     }
-
 }
 
