@@ -1,6 +1,6 @@
 <?php
 /**
- * Desc: 当个请求
+ * Desc: 单个请求
  * User: baagee
  * Date: 2019/10/4
  * Time: 14:16
@@ -65,6 +65,11 @@ class SingleRequest extends CurlRequestAbstract
         return compact('result', 'curlInfo', 'errno', 'errmsg');
     }
 
+    /**
+     * @param $name
+     * @param $arguments
+     * @return array
+     */
     public function __call($name, $arguments)
     {
         return $this->request($arguments[1] ?? '', $arguments[0] ?? '', $name,

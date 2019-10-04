@@ -62,7 +62,7 @@ abstract class CurlRequestAbstract
     /**
      * @return resource
      */
-    protected static function getMultiCurlHandler()
+    final protected static function getMultiCurlHandler()
     {
         return curl_multi_init();
     }
