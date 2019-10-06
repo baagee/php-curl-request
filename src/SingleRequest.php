@@ -16,6 +16,7 @@ use BaAGee\CurlRequest\Base\CurlRequestAbstract;
  * @method put($params, string $path)
  * @method delete($params, string $path)
  * @method options($params, string $path)
+ * @method patch($params, string $path)
  * Class SingleRequest
  * @package CurlRequest
  */

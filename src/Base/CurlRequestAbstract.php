@@ -13,7 +13,7 @@ use BaAGee\CurlRequest\CurlOptions;
 abstract class CurlRequestAbstract
 {
     public const ALLOW_METHODS = [
-        'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'
+        'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'
     ];
 
     /**
