@@ -32,6 +32,13 @@ abstract class CurlRequestAbstract
         'user_agent'         => '',
         'return_header'      => 0,//返回值是否展示header
         'retry_times'        => 1,//单个请求时失败重试次数
+        'ssl'                => [
+            'cert_pwd'  => '',
+            'cert_type' => 'PEM',
+            'key_type'  => 'PEM',
+            'cert_file' => '',
+            'key_file'  => '',
+        ]
     ];
 
     /**
@@ -41,12 +48,14 @@ abstract class CurlRequestAbstract
      * @param        $params
      * @param array  $headers
      * @param string $cookies
+     * @param array  $curlOptions
      */
-    final protected function setOptions(&$curlHandler, string $method, string $path, $params, array $headers, string $cookies)
+    final protected function setOptions(&$curlHandler, string $method, string $path, $params, array $headers,
+                                        string $cookies, array $curlOptions = [])
     {
         $path        = $this->getUrl($path);
         $optionsObj  = new CurlOptions($curlHandler);
-        $curlHandler = $optionsObj->setOptions($this->config, $path, $params, $headers, $cookies, $method)->getCurlHandler();
+        $curlHandler = $optionsObj->setOptions($this->config, $path, $params, $headers, $cookies, $method, $curlOptions)->getCurlHandler();
     }
 
     /**

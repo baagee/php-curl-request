@@ -11,11 +11,11 @@ namespace BaAGee\CurlRequest;
 use BaAGee\CurlRequest\Base\CurlRequestAbstract;
 
 /**
- * @method get($params, string $path, array $headers = [], string $cookies = '')
- * @method post($params, string $path, array $headers = [], string $cookies = '')
- * @method put($params, string $path, array $headers = [], string $cookies = '')
- * @method delete($params, string $path, array $headers = [], string $cookies = '')
- * @method options($params, string $path, array $headers = [], string $cookies = '')
+ * @method get($params, string $path)
+ * @method post($params, string $path)
+ * @method put($params, string $path)
+ * @method delete($params, string $path)
+ * @method options($params, string $path)
  * Class SingleRequest
  * @package CurlRequest
  */
@@ -27,14 +27,66 @@ class SingleRequest extends CurlRequestAbstract
     protected $curlHandler = null;
 
     /**
-     * @param string $path
-     * @param        $params
-     * @param string $method
-     * @param array  $headers
+     * @var array
+     */
+    protected $headers = [];
+    /**
+     * @var string
+     */
+    protected $cookies = '';
+    /**
+     * @var array
+     */
+    protected $curlOptions = [];
+
+    /**
+     * @param array $headers
+     * @return $this
+     */
+    public function setHeaders(array $headers)
+    {
+        $this->headers = $headers;
+        return $this;
+    }
+
+    /**
      * @param string $cookies
+     * @return $this
+     */
+    public function setCookies(string $cookies)
+    {
+        $this->cookies = $cookies;
+        return $this;
+    }
+
+    /**
+     * @param array $curlOptions
+     * @return $this
+     */
+    public function setCurlOptions(array $curlOptions)
+    {
+        $this->curlOptions = $curlOptions;
+        return $this;
+    }
+
+    /**
+     * 清空
+     */
+    private function reset()
+    {
+        $this->cookies     = '';
+        $this->headers     = [];
+        $this->curlOptions = [];
+    }
+
+    /**
+     * 发送请求
+     * @param string $path   请求路径
+     * @param mixed  $params 参数
+     * @param string $method 请求方法
      * @return array
      */
-    public function request(string $path, $params, string $method, array $headers = [], string $cookies = '')
+    public function request(string $path, $params, string $method)
     {
         if ($this->curlHandler == null) {
             $this->curlHandler = static::getCurlHandler();
@@ -42,8 +94,8 @@ class SingleRequest extends CurlRequestAbstract
             curl_reset($this->curlHandler);
         }
 
-        $this->setOptions($this->curlHandler, $method, $path, $params, $headers, $cookies);
-
+        $this->setOptions($this->curlHandler, $method, $path, $params, $this->headers, $this->cookies, $this->curlOptions);
+        $this->reset();//清空
         $result = null;
         for ($tryTimes = 0; $tryTimes <= intval($this->config['retry_times']); $tryTimes++) {
             $result   = curl_exec($this->curlHandler);
@@ -72,8 +124,7 @@ class SingleRequest extends CurlRequestAbstract
      */
     public function __call($name, $arguments)
     {
-        return $this->request($arguments[1] ?? '', $arguments[0] ?? '', $name,
-            $arguments[2] ?? [], $arguments[3] ?? '');
+        return $this->request($arguments[1] ?? '', $arguments[0] ?? '', $name);
     }
 
     /**

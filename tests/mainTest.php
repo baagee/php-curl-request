@@ -40,10 +40,10 @@ class mainTest extends \PHPUnit\Framework\TestCase
         ];
         $method  = 'GET';
         $headers = [];
-        $res     = $request->request($path, $params, $method, $headers);
+        $res     = $request->setHeaders($headers)->request($path, $params, $method);
         var_dump($res);
 
-        $res = $request->get($params, $path, $headers, '');
+        $res = $request->setHeaders($headers)->get($params, $path);
         var_dump($res);
         $this->assertNotEmpty($res);
     }
@@ -65,7 +65,7 @@ class mainTest extends \PHPUnit\Framework\TestCase
         $headers = [
             'x-test-time: ' . time(),
         ];
-        $res     = $re->request($path, $params, $method, $headers, $cookies);
+        $res     = $re->setHeaders($headers)->setCookies($cookies)->request($path, $params, $method);
         var_dump(json_decode($res['result'], true));
         $this->assertNotEmpty($res);
     }

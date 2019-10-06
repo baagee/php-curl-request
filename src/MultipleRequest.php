@@ -30,7 +30,8 @@ class MultipleRequest extends CurlRequestAbstract
      *                      $params,
      *                      $method,
      *                      $headers = [],
-     *                      $cookies=[]
+     *                      $cookies=[],
+     *                      $curlOptions=[]
      *                      ]
      *                      ]
      * @return array|null
@@ -46,7 +47,7 @@ class MultipleRequest extends CurlRequestAbstract
         foreach ($params as $k => $item) {
             $multiCurlPool[$k] = static::getCurlHandler();
             $this->setOptions($multiCurlPool[$k], $item['method'], $item['path'], $item['params'] ?? '',
-                $item['headers'] ?? [], $item['cookies'] ?? '');
+                $item['headers'] ?? [], $item['cookies'] ?? '', (array)($item['curlOptions'] ?? []));
             curl_multi_add_handle($this->mCurlHandler, $multiCurlPool[$k]);
         }
 

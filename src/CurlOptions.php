@@ -115,14 +115,38 @@ class CurlOptions extends CurlOptionsAbstract
 
     /**
      * @param $url
+     * @param $config
      */
-    protected function noCheckSSL($url)
+    protected function checkSSL($url, $config)
     {
-        if (stripos($url, 'https://') !== false) {
+        $ssl                                   = $config['ssl'];
+        $this->options[CURLOPT_SSL_VERIFYPEER] = 0;
+        $this->options[CURLOPT_SSL_VERIFYHOST] = 0;
+        if (stripos($url, 'https://') !== false && stripos($url, $config['host']) !== false) {
+            // config的host和url的host是同一个
+            if (
+                is_array($ssl) &&
+                !empty($ssl['cert_file']) && is_file($ssl['cert_file']) &&
+                !empty($ssl['key_file']) && is_file($ssl['key_file'])
+            ) {
+                if (isset($ssl['cert_type']) && !empty($ssl['cert_type'])) {
+                    $this->options[CURLOPT_SSLCERTTYPE] = $ssl['cert_type'];
+                }
+                if (isset($ssl['cert_file']) && !empty($ssl['cert_file'])) {
+                    $this->options[CURLOPT_SSLCERT] = $ssl['cert_file'];
+                }
+                if (isset($ssl['key_type']) && !empty($ssl['key_type'])) {
+                    $this->options[CURLOPT_SSLKEYTYPE] = $ssl['key_type'];
+                }
+                if (isset($ssl['key_file']) && !empty($ssl['key_file'])) {
+                    $this->options[CURLOPT_SSLKEY] = $ssl['key_file'];
+                }
+
+                if (isset($ssl['cert_pwd']) && !empty($ssl['cert_pwd'])) {
+                    $this->options[CURLOPT_SSLCERTPASSWD] = $ssl['cert_pwd'];
+                }
+            }
             // https请求 不验证证书和host
-            $this->options[CURLOPT_SSL_VERIFYPEER] = 0;
-            $this->options[CURLOPT_SSL_VERIFYHOST] = 0;
-            $this->options[CURLOPT_SSLVERSION]     = 1;
         }
     }
 
@@ -197,7 +221,7 @@ class CurlOptions extends CurlOptionsAbstract
     /**
      * @param $headers
      */
-    protected function setHeaders($headers=[])
+    protected function setHeaders($headers = [])
     {
         // 设置请求头
         if (!empty($headers)) {
@@ -245,7 +269,7 @@ class CurlOptions extends CurlOptionsAbstract
         //设置请求URL
         $this->setUrl($url);
         // https不验证
-        $this->noCheckSSL($url);
+        $this->checkSSL($url, $config);
         // 设置Cookie
         $this->setCookies($cookies);
     }
@@ -258,11 +282,15 @@ class CurlOptions extends CurlOptionsAbstract
      * @param array  $headers
      * @param string $cookies
      * @param string $method
+     * @param array  $options
      * @return $this
      */
-    public function setOptions(array $config, string $url, $params, array $headers, string $cookies, string $method)
+    public function setOptions(array $config, string $url, $params, array $headers, string $cookies, string $method, array $options = [])
     {
         $this->buildOptions($config, $url, $params, $method, $headers, $cookies);
+        if (!empty($options) && is_array($options)) {
+            $this->options = array_merge($this->options, $options);
+        }
         curl_setopt_array($this->curlHandler, $this->options);
         return $this;
     }

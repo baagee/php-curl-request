@@ -27,11 +27,13 @@ function testSingle()
         'code'     => 'dsgsgd',
     ];
     $method  = 'GET';
-    $headers = [];
-    $res     = $request->request($path, $params, $method, $headers);
+    $headers = [
+        "X-LOG-ID: ".time()
+    ];
+    $res     = $request->setHeaders($headers)->request($path, $params, $method);
     var_dump($res);
     // or
-    $res = $request->get($params, $path, $headers, '');
+    $res = $request->setHeaders($headers)->get($params, $path);
     var_dump($res);
 }
 
@@ -59,7 +61,7 @@ function testUpload()
     $method  = 'POST';
     $cookies = 'PHPSESSID=147f6c0f7e8b93879183a93e00843ecf';
     $headers = [];
-    $res     = $re->request($path, $params, $method, $headers, $cookies);
+    $res     = $re->setCookies($cookies)->request($path, $params, $method);
     var_dump(json_decode($res['result'], true));
 }
 
@@ -84,7 +86,8 @@ function testMulti()
             'params'  => $params,
             'method'  => 'POST',
             'headers' => [],
-            'cookies' => ''
+            'cookies' => '',
+            'curlOptions'=>[],
         ],
         [
             'path'    => $path,
@@ -117,7 +120,6 @@ function testMulti()
     ];
     $t    = microtime(true);
     $res  = $mRequest->request($data);
-    $res  = $mRequest->request($data);
     file_put_contents('./res.json', json_encode($res));
     var_dump(microtime(true) - $t);
 }
@@ -142,7 +144,14 @@ protected $config = [
     ],
     'referer'            => '',// http-referer
     'user_agent'         => '',// user-agent
-    'return_header'      => 0,//返回值是否展示header
-    'retry_times'        => 1,//单个请求时失败重试次数
+    'return_header'      => 0,// 返回值是否展示header
+    'retry_times'        => 1,// 单个请求时失败重试次数
+    'ssl'                => [ // ssl相关参数 
+        'cert_pwd'  => '',
+        'cert_type' => 'PEM',
+        'key_type'  => 'PEM',
+        'cert_file' => '',
+        'key_file'  => '',
+    ]
 ];
 ```
