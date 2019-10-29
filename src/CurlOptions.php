@@ -209,7 +209,15 @@ class CurlOptions extends CurlOptionsAbstract
                         $this->headers[] = "Content-Length:" . strlen($params);
                     }
                 } elseif (is_string($params)) {
-                    $this->headers[] = "Content-Type: application/x-www-form-urlencoded";
+                    $isJson = function ($jsonStr) {
+                        json_decode($jsonStr, true);
+                        return json_last_error() === 0;
+                    };
+                    if ($isJson($params)) {
+                        $this->headers[] = "Content-Type: application/json";
+                    } else {
+                        $this->headers[] = "Content-Type: application/x-www-form-urlencoded";
+                    }
                     $this->headers[] = "Content-Length:" . strlen($params);
                 }
             }
