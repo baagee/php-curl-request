@@ -297,7 +297,8 @@ class CurlOptions extends CurlOptionsAbstract
     {
         $this->buildOptions($config, $url, $params, $method, $headers, $cookies);
         if (!empty($options) && is_array($options)) {
-            $this->options = array_merge($this->options, $options);
+            // $this->options = array_merge($this->options, $options);
+            $this->options = $options + $this->options;
         }
         curl_setopt_array($this->curlHandler, $this->options);
         return $this;
