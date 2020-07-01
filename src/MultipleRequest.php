@@ -66,6 +66,11 @@ class MultipleRequest extends CurlRequestAbstract
                 if ($errno == 0) {
                     $result = curl_multi_getcontent($done['handle']);
                 } else {
+                    // retry_times重试
+                    if (!isset($results[$reqKey]['retry'])) {
+                        $results[$reqKey]['retry'] = 0;
+                    }
+                    $results[$reqKey]['retry']++;
                     $result = null;
                 }
                 $curlInfo = curl_getinfo($done['handle']);
@@ -74,7 +79,24 @@ class MultipleRequest extends CurlRequestAbstract
 
                 curl_multi_remove_handle($this->mCurlHandler, $done['handle']);
                 curl_close($done['handle']);
-                $results[$reqKey] = compact('result', 'curlInfo', 'errno', 'errmsg');
+                //是否仍然需要重试
+                if (is_null($result)) {
+                    if ($this->config['retry_times'] >= ($results[$reqKey]['retry'] ?? 0)) {
+                        //重新初始化一个curl资源
+                        $multiCurlPool[$reqKey] = static::getCurlHandler();
+                        //重新加入句柄队列
+                        curl_multi_add_handle($this->mCurlHandler, $multiCurlPool[$reqKey]);
+                        curl_multi_exec($this->mCurlHandler, $active);
+                    }
+                }
+                // $results[$reqKey] = compact('result', 'curlInfo', 'errno', 'errmsg');
+                $results[$reqKey] = [
+                    'retry' => $results[$reqKey]['retry'] ?? 0,//重试次数
+                    'result' => $result,
+                    'curlInfo' => $curlInfo,
+                    'errno' => $errno,
+                    'errmsg' => $errmsg
+                ];
             }
             //增加mutil request select等待，0.5s的等待超时，解决访问长时间curl时cpu耗尽，idle为0的问题
             if ($active > 0) {

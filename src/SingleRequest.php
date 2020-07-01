@@ -98,7 +98,7 @@ class SingleRequest extends CurlRequestAbstract
         $this->setOptions($this->curlHandler, $method, $path, $params, $this->headers, $this->cookies, $this->curlOptions);
         $this->reset();//清空
         $result = null;
-        for ($tryTimes = 0; $tryTimes <= intval($this->config['retry_times']); $tryTimes++) {
+        for ($retry = 0; $retry <= intval($this->config['retry_times']); $retry++) {
             $result   = curl_exec($this->curlHandler);
             $curlInfo = curl_getinfo($this->curlHandler);
             $errno    = curl_errno($this->curlHandler);// 错误码
@@ -106,16 +106,16 @@ class SingleRequest extends CurlRequestAbstract
             if ($errno == 0) {
                 break;
             } else {
-                if ($tryTimes == intval($this->config['retry_times'])) {
+                if ($retry == intval($this->config['retry_times'])) {
                     // 出错
                     throw new \RuntimeException($errmsg, $errno);
                 } else {
-                    $tryTimes++;
+                    $retry++;
                 }
             }
         }
 
-        return compact('result', 'curlInfo', 'errno', 'errmsg');
+        return compact('retry','result', 'curlInfo', 'errno', 'errmsg');
     }
 
     /**

@@ -75,7 +75,8 @@ class mainTest extends \PHPUnit\Framework\TestCase
     {
         $config   = [
             'return_header' => 0,
-            'max_redirs'    => 0
+            'max_redirs'    => 0,
+            'retry_times'   => 3
         ];
         $mRequest = new MultipleRequest($config);
 
