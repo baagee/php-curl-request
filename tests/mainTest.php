@@ -27,7 +27,7 @@ class mainTest extends \PHPUnit\Framework\TestCase
     {
         $config  = [
             'referer'    => 'https://www.json.cn/',
-            'host'       => '10.188.60.200:8550',
+            'host'       => '127.0.0.1:8550',
             'user_agent' => 'test'
         ];
         $request = new SingleRequest($config);
@@ -52,7 +52,7 @@ class mainTest extends \PHPUnit\Framework\TestCase
     function testUpload()
     {
         $re      = new SingleRequest([
-            'host'               => 'http://10.188.60.200:8550',
+            'host'               => 'http://127.0.0.1:8550',
             'timeout_ms'         => 1000,//读取超时 毫秒
             'connect_timeout_ms' => 1000, // 连接超时 毫秒
         ]);
@@ -79,7 +79,7 @@ class mainTest extends \PHPUnit\Framework\TestCase
         ];
         $mRequest = new MultipleRequest($config);
 
-        $path   = 'http://10.188.60.200:8550/api/test/curl';
+        $path   = 'http://127.0.0.1:9001/index.php';
         $params = [
             'username' => 'ghfjfhj',
             'password' => 'fhdghdf',
@@ -126,7 +126,9 @@ class mainTest extends \PHPUnit\Framework\TestCase
         $t    = microtime(true);
         $res  = $mRequest->request($data);
         var_dump(microtime(true) - $t);
-        $this->assertNotEmpty($res);
+        foreach ($res as $re){
+            $this->assertNotEmpty($re['result']);
+        }
     }
 }
 

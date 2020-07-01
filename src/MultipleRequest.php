@@ -51,7 +51,7 @@ class MultipleRequest extends CurlRequestAbstract
             curl_multi_add_handle($this->mCurlHandler, $multiCurlPool[$k]);
         }
 
-        $active = 1;
+        $active = 0;
         do {
             //开始发送请求
             while (($mrc = curl_multi_exec($this->mCurlHandler, $active)) == CURLM_CALL_MULTI_PERFORM)
@@ -62,21 +62,27 @@ class MultipleRequest extends CurlRequestAbstract
 
             while ($done = curl_multi_info_read($this->mCurlHandler)) {
                 $reqKey = array_search($done['handle'], $multiCurlPool);
-                $errno  = $done['result'];
+                $errno = $done['result'];
                 if ($errno == 0) {
                     $result = curl_multi_getcontent($done['handle']);
                 } else {
                     $result = null;
                 }
                 $curlInfo = curl_getinfo($done['handle']);
-                $errno    = curl_errno($done['handle']);
-                $errmsg   = curl_error($done['handle']);
+                $errno = curl_errno($done['handle']);
+                $errmsg = curl_error($done['handle']);
 
                 curl_multi_remove_handle($this->mCurlHandler, $done['handle']);
                 curl_close($done['handle']);
                 $results[$reqKey] = compact('result', 'curlInfo', 'errno', 'errmsg');
             }
-
+            //增加mutil request select等待，0.5s的等待超时，解决访问长时间curl时cpu耗尽，idle为0的问题
+            if ($active > 0) {
+                if (curl_multi_select($this->mCurlHandler, 0.5) === -1) {
+                    // Perform a usleep if a select returns -1. See: https://bugs.php.net/bug.php?id=61141
+                    usleep(100);
+                }
+            }
         } while ($active);
 
         return $results;
