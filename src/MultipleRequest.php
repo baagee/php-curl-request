@@ -106,8 +106,18 @@ class MultipleRequest extends CurlRequestAbstract
                 }
             }
         } while ($active);
-
+        $this->close();
         return $results;
+    }
+
+    /**
+     * 关闭curl
+     */
+    protected function close()
+    {
+        if (is_resource($this->mCurlHandler)) {
+            curl_multi_close($this->mCurlHandler);
+        }
     }
 
     /**
@@ -115,8 +125,6 @@ class MultipleRequest extends CurlRequestAbstract
      */
     public function __destruct()
     {
-        if (is_resource($this->mCurlHandler)) {
-            curl_multi_close($this->mCurlHandler);
-        }
+        $this->close();
     }
 }
